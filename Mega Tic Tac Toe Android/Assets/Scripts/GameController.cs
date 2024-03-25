@@ -4,6 +4,20 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class Player
+{
+    public Image panel;
+    public TextMeshProUGUI text;
+}
+
+[System.Serializable]
+public class PlayerColor
+{
+    public Color panelColor;
+    public Color textColor;
+}
+
 public class GameController : MonoBehaviour
 {
     public TextMeshProUGUI[] buttonList;
@@ -11,23 +25,35 @@ public class GameController : MonoBehaviour
     public GameObject[] Grid;
     public Button[] SelectButtons;
 
+    public Player playerX;
+    public Player playerO;
+    public PlayerColor activePlayerColor;
+    public PlayerColor inactivePlayerColor;
+
     private string playerSide;
 
-    private int[,,] grids = new int[9, 3, 3];
-    private Image[,,] cells = new Image[9, 3, 3];
-    private TextMeshProUGUI[,,] text = new TextMeshProUGUI[9, 3, 3];
+    private int[,,] grids;
+    private Image[,,] cells;
+    private TextMeshProUGUI[,,] text;
 
     private int activeGrid;
 
-    [SerializeField]
+    //[SerializeField]
     //public int grid;
     //public int gridX;
     //public int gridY;
 
     public void Awake()
     {
+        grids = new int[9, 3, 3];
+        cells = new Image[9, 3, 3];
+        text = new TextMeshProUGUI[9, 3, 3];
         activeGrid = -1;
+
+        //temporary
         playerSide = "X";
+        SetPlayerColors(playerX, playerO);
+
         InitializeCells();
         SetPlayBoardInteractable(false);
         SetGameControllerReferenceOnButtons();
@@ -102,6 +128,15 @@ public class GameController : MonoBehaviour
     void ChangeSides()
     {
         playerSide = (playerSide == "X") ? "O" : "X";
+
+        if(playerSide == "X")
+        {
+            SetPlayerColors(playerX, playerO);
+        }
+        else
+        {
+            SetPlayerColors(playerO, playerX);
+        }
     }
 
     private static int GetGrid(string name)
@@ -123,6 +158,14 @@ public class GameController : MonoBehaviour
         {
             buttonList[i].GetComponentInParent<Button>().interactable = toggle;
         }
+    }
+
+    void SetPlayerColors(Player newPlayer, Player oldPlayer)
+    {
+        newPlayer.panel.color = activePlayerColor.panelColor;
+        newPlayer.text.color = activePlayerColor.textColor;
+        oldPlayer.panel.color = inactivePlayerColor.panelColor;
+        oldPlayer.text.color = inactivePlayerColor.textColor;
     }
 
     public void FillGrid(string name)
