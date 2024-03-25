@@ -9,6 +9,7 @@ public class Player
 {
     public Image panel;
     public TextMeshProUGUI text;
+    public Button button;
 }
 
 [System.Serializable]
@@ -50,12 +51,9 @@ public class GameController : MonoBehaviour
         text = new TextMeshProUGUI[9, 3, 3];
         activeGrid = -1;
 
-        //temporary
-        playerSide = "X";
-        SetPlayerColors(playerX, playerO);
-
         InitializeCells();
         SetPlayBoardInteractable(false);
+        SetBoardInteractable(false);
         SetGameControllerReferenceOnButtons();
     }
 
@@ -67,37 +65,30 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void FillGrid(string name)
+    {
+        int grid = GetGrid(name);
+        FillGrid(activeGrid, grid % 3, grid / 3);
+        activeGrid = grid;
+        SelectButtons[grid].Select();
+        ChangeSides();
+    }
+
+    public void SetActiveGrid(string grid)
+    {
+        if (activeGrid == -1)
+        {
+            activeGrid = GetGrid(grid);
+            LoadGrid(grid);
+        }
+    }
+
     public void SetGameControllerReferenceOnButtons()
     {
         for (int i = 0; i < buttonList.Length; i++)
         {
             buttonList[i].GetComponentInParent<GridSpace>().SetGameControllerReference(this);
             SelectButtons[i].GetComponentInParent<SelectButton>().SetGameControllerReference(this);
-        }
-    }
-
-    private void FillGrid(int grid, int gridX, int gridY)
-    {
-        if (((grid <= 8) && (grid >= 0)) && (((gridX >= 0) && (gridX <= 2)) && ((gridY >= 0) && (gridY <= 2))))
-        {
-            grids[grid , gridX, gridY] = (playerSide == "X") ? 1 : 2;
-            cells[grid , gridX, gridY].color = Color.white;
-            text[grid, gridX, gridY].text = playerSide;
-        }
-    }
-
-    private void InitializeCells()
-    {
-        for (int i = 0; i < cells.GetLength(0); i++)
-        {
-            for (int j = 0; j < cells.GetLength(1); j++)
-            {
-                for (int k = 0; k < cells.GetLength(2); k++)
-                {
-                    cells[i, j, k] = Grid[i].transform.GetChild((k * 3) + j).gameObject.GetComponent<Image>();
-                    text[i, j, k] = Grid[i].transform.GetChild((k * 3) + j).gameObject.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-                }
-            }
         }
     }
 
@@ -125,31 +116,18 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void SetStartingSide(string startingSide)
+    {
+        playerSide = startingSide;
+        HighlightActiveSide();
+
+        StartGame();
+    }
+
     void ChangeSides()
     {
         playerSide = (playerSide == "X") ? "O" : "X";
-
-        if(playerSide == "X")
-        {
-            SetPlayerColors(playerX, playerO);
-        }
-        else
-        {
-            SetPlayerColors(playerO, playerX);
-        }
-    }
-
-    private static int GetGrid(string name)
-    {
-        return int.Parse(name.Substring(name.Length - 1)) - 1;
-    }
-
-    void SetBoardInteractable(bool toggle)
-    {
-        for (int i = 0; i < buttonList.Length; i++)
-        {
-            SelectButtons[i].interactable = toggle;
-        }
+        HighlightActiveSide();
     }
 
     void SetPlayBoardInteractable(bool toggle)
@@ -157,6 +135,14 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < buttonList.Length; i++)
         {
             buttonList[i].GetComponentInParent<Button>().interactable = toggle;
+        }
+    }
+
+    void SetBoardInteractable(bool toggle)
+    {
+        for (int i = 0; i < buttonList.Length; i++)
+        {
+            SelectButtons[i].interactable = toggle;
         }
     }
 
@@ -168,21 +154,57 @@ public class GameController : MonoBehaviour
         oldPlayer.text.color = inactivePlayerColor.textColor;
     }
 
-    public void FillGrid(string name)
+    void SetPlayerButtonInteractibility(bool toggle)
     {
-        int grid = GetGrid(name);
-        FillGrid(activeGrid, grid % 3, grid / 3);
-        activeGrid = grid;
-        SelectButtons[grid].Select();
-        ChangeSides();
+        playerX.button.interactable = toggle;
+        playerO.button.interactable = toggle;
     }
 
-    public void SetActiveGrid(string grid)
+    private void StartGame()
     {
-        if(activeGrid == -1)
+        SetBoardInteractable(true);
+        SetPlayerButtonInteractibility(false);
+    }
+
+    private void FillGrid(int grid, int gridX, int gridY)
+    {
+        if (((grid <= 8) && (grid >= 0)) && (((gridX >= 0) && (gridX <= 2)) && ((gridY >= 0) && (gridY <= 2))))
         {
-            activeGrid = GetGrid(grid);
-            LoadGrid(grid);
+            grids[grid, gridX, gridY] = (playerSide == "X") ? 1 : 2;
+            cells[grid, gridX, gridY].color = Color.white;
+            text[grid, gridX, gridY].text = playerSide;
         }
+    }
+
+    private void InitializeCells()
+    {
+        for (int i = 0; i < cells.GetLength(0); i++)
+        {
+            for (int j = 0; j < cells.GetLength(1); j++)
+            {
+                for (int k = 0; k < cells.GetLength(2); k++)
+                {
+                    cells[i, j, k] = Grid[i].transform.GetChild((k * 3) + j).gameObject.GetComponent<Image>();
+                    text[i, j, k] = Grid[i].transform.GetChild((k * 3) + j).gameObject.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+                }
+            }
+        }
+    }
+
+    private void HighlightActiveSide()
+    {
+        if (playerSide == "X")
+        {
+            SetPlayerColors(playerX, playerO);
+        }
+        else
+        {
+            SetPlayerColors(playerO, playerX);
+        }
+    }
+
+    private int GetGrid(string name)
+    {
+        return int.Parse(name.Substring(name.Length - 1)) - 1;
     }
 }
