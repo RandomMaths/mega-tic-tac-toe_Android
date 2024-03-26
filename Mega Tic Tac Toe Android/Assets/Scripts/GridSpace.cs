@@ -21,7 +21,6 @@ public class GridSpace : MonoBehaviour
     {
         label.text = playerSide;
         gameController.FillGrid(button.name);
-        gameController.LoadGrid(button.name);
     }
 
     public void SetGameControllerReference(GameController controller)
