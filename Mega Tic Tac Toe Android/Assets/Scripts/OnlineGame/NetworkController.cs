@@ -10,7 +10,6 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
-using System.Threading.Tasks;
 
 public class NetworkController : NetworkBehaviour
 {
@@ -23,6 +22,8 @@ public class NetworkController : NetworkBehaviour
 
     [SerializeField] private Button hostButton, clientButton;
 
+    [SerializeField] private GameObject pleaseWait;
+    [SerializeField] private GameObject errorPanel;
     [SerializeField] private GameObject placeholderPanel;
     [SerializeField] private TextMeshProUGUI labelText;
     [SerializeField] private GameObject codeArea;
@@ -45,6 +46,8 @@ public class NetworkController : NetworkBehaviour
     {
         game.SetActive(false);
         placeholderPanel.SetActive(false);
+        pleaseWait.SetActive(false);
+        errorPanel.SetActive(false);
 
         NetworkManager.Singleton.OnClientConnectedCallback += (clientId) =>
         {
@@ -70,12 +73,16 @@ public class NetworkController : NetworkBehaviour
     {
         try
         {
+            pleaseWait.SetActive(true);
+            hostButton.interactable = false;
+            clientButton.interactable = false;
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1);
             joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-
+            
             RelayServerData relayServerData = new RelayServerData(allocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
+
             game.transform.Find("PlayerX").transform.GetComponentInChildren<Button>().interactable = true;
             game.transform.Find("PlayerO").transform.GetComponentInChildren<Button>().interactable = true;
             OnlineGameController.isHost = true;
@@ -84,6 +91,9 @@ public class NetworkController : NetworkBehaviour
         catch (RelayServiceException e)
         {
             Debug.Log(e.ToString());
+
+            errorPanel.SetActive(true);
+            errorPanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = e.Reason.ToString();
         }
     }
 
@@ -96,9 +106,12 @@ public class NetworkController : NetworkBehaviour
     {
         try
         {
-            Debug.Log(codeArea.transform.GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>().text);
+            pleaseWait.SetActive(true);
+            joinButton.interactable = false;
+            codeArea.GetComponent<TMP_InputField>().interactable = false;
+
             string code = codeArea.transform.GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>().text;
-            code = code.Substring(0, 6);
+            if(code.Length == 7) code = code.Substring(0, 6);
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(code);
             RelayServerData relayServerData = new RelayServerData(joinAllocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
@@ -110,6 +123,8 @@ public class NetworkController : NetworkBehaviour
         catch (RelayServiceException e)
         {
             Debug.Log(e.ToString());
+            errorPanel.SetActive(true);
+            errorPanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = e.Reason.ToString();
         }
     }
 
@@ -118,6 +133,24 @@ public class NetworkController : NetworkBehaviour
         if (NetworkManager.Singleton.IsConnectedClient)
             NetworkManager.Singleton.Shutdown();
         Destroy(NetworkManager);
+    }
+
+    public void TryAgain()
+    {
+        errorPanel.SetActive(false);
+        pleaseWait.SetActive(false);
+
+        if (placeholderPanel.activeInHierarchy)
+        {
+            joinButton.interactable = true;
+            codeArea.GetComponent<TMP_InputField>().interactable = true;
+            codeArea.GetComponent<TMP_InputField>().text = "";
+        }
+        else
+        {
+            hostButton.interactable = true;
+            clientButton.interactable = true;
+        }
     }
 
     private void ActivatePlaceholderPanel(bool isHost)
@@ -134,6 +167,7 @@ public class NetworkController : NetworkBehaviour
             joinButton.interactable = false;
             joinButton.GetComponent<Image>().sprite = null;
             joinButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "waiting for client...";
+            pleaseWait.SetActive(false);
         }
         else if (!isHost)
         {
