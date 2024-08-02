@@ -34,7 +34,6 @@ RectTransform:
   m_Children:
   - {fileID: 1800308401030523614}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -100,11 +99,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.33577785, g: 0.6792453, b: 0.6792453, a: 1}
-    m_HighlightedColor: {r: 0.5019608, g: 1, b: 1, a: 1}
-    m_PressedColor: {r: 0.2, g: 0.4, b: 0.4, a: 1}
-    m_SelectedColor: {r: 0.33577785, g: 0.6792453, b: 0.6792453, a: 1}
-    m_DisabledColor: {r: 0.21568628, g: 0.25882354, b: 0.3019608, a: 1}
+    m_NormalColor: {r: 0.42344663, g: 0.51524276, b: 0.61, a: 1}
+    m_HighlightedColor: {r: 0.56078434, g: 0.68235296, b: 0.80784315, a: 1}
+    m_PressedColor: {r: 0.391, g: 0.3825, b: 0.51, a: 1}
+    m_SelectedColor: {r: 0.42344663, g: 0.51524276, b: 0.61, a: 1}
+    m_DisabledColor: {r: 0.18039216, g: 0.24313726, b: 0.29803923, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -161,7 +160,7 @@ GameObject:
   - component: {fileID: 1800308401030523614}
   - component: {fileID: 1800308401030523608}
   - component: {fileID: 1800308401030523609}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -181,7 +180,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1800308400892846305}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -225,8 +223,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4288378461
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294961806
+  m_fontColor: {r: 0.5566037, g: 0.9195567, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
